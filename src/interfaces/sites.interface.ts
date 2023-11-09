@@ -1,4 +1,4 @@
 export interface Sites {
-  name: string;
+  siteN: string;
   siteID: string;
 }
