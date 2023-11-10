@@ -6,10 +6,11 @@ import {
   postSite,
   updateSite,
 } from "../controllers/sites";
+import { checkJWT } from "../middleware/session";
 
 const router = Router();
 
-router.get("/", getSites);
+router.get("/", checkJWT, getSites);
 
 router.get("/:id", getSite);
 
