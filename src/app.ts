@@ -1,6 +1,7 @@
 import "dotenv/config";
 import express from "express";
 import cors from "cors";
+import fileUploud from "express-fileupload";
 import { router } from "./routes";
 import db from "./config/mongo";
 
