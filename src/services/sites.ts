@@ -7,19 +7,19 @@ const insertSite = async (site: Sites) => {
 };
 
 const readSites = async () => {
-  const responseSites = await SiteModel.find({});
+  const responseSites = await SiteModel.find({}).lean();
   return responseSites;
 };
 
 const readSite = async (id: string) => {
-  const responseSite = await SiteModel.findOne({ _id: id });
+  const responseSite = await SiteModel.findOne({ _id: id }).lean();
   return responseSite;
 };
 
 const putSite = async (id: string, data: Sites) => {
   const responseSite = await SiteModel.findByIdAndUpdate({ _id: id }, data, {
     new: true,
-  });
+  }).lean();
   return responseSite;
 };
 

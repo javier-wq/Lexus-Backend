@@ -4,7 +4,7 @@ import { InitialData } from "../interfaces/initialData.interface";
 const InitialDataSchema = new Schema<InitialData>(
   {
     siteName: {
-      type: mongoose.Types.ObjectId,
+      type: Schema.Types.ObjectId,
       required: true,
     },
     visitDate: {
@@ -25,23 +25,47 @@ const InitialDataSchema = new Schema<InitialData>(
       required: true,
     },
     imgIncome: {
-      type: String,
+      type: [
+        {
+          public_id: String,
+          secure_url: String,
+        },
+      ],
       required: true,
+      default: [],
     },
     imgTower: {
-      type: String,
+      type: [
+        {
+          public_id: String,
+          secure_url: String,
+        },
+      ],
       required: true,
+      default: [],
     },
     imgPanorama1: {
-      type: String,
+      type: [
+        {
+          public_id: String,
+          secure_url: String,
+        },
+      ],
       required: true,
+      default: [],
     },
     imgPanorama2: {
-      type: String,
+      type: [
+        {
+          public_id: String,
+          secure_url: String,
+        },
+      ],
       required: true,
+      default: [],
     },
     siteOwner: {
-      type: mongoose.Types.ObjectId,
+      type: Schema.Types.ObjectId,
       required: true,
     },
     access: {
@@ -60,5 +84,5 @@ const InitialDataSchema = new Schema<InitialData>(
   }
 );
 
-const InitialDataModel = model("siteOwner", InitialDataSchema);
+const InitialDataModel = model("initialData", InitialDataSchema);
 export default InitialDataModel;

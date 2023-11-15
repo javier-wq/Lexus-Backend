@@ -10,14 +10,15 @@ const app = express();
 
 app.use(cors());
 app.use(express.json());
-app.use(router);
-
+app.use(express.urlencoded({ extended: false }));
 app.use(
   fileUpload({
     useTempFiles: true,
     tempFileDir: "./uploads",
   })
 );
+
+app.use(router);
 
 db().then(() => console.log("Connection established successfully"));
 
