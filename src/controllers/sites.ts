@@ -53,7 +53,7 @@ const deleteSite = async ({ params }: Request, res: Response) => {
     const response = await dropSite(id);
     res.send(response);
   } catch (e) {
-    handlerHttp(res, "ERROR_DELETE  _SITE");
+    handlerHttp(res, "ERROR_DELETE_SITE");
   }
 };
 

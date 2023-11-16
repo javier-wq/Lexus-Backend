@@ -1,6 +1,7 @@
 import { Request, Response } from "express";
+import fs from "fs";
 import { handlerHttp } from "../utils/error.handler";
-import { uploadImage } from "../utils/cloudinary.handler";
+import { uploadImage, deleteImage } from "../utils/cloudinary.handler";
 import {
   dropInitialData,
   insertInitialData,
@@ -13,10 +14,15 @@ const getInitialData = async ({ params }: Request, res: Response) => {
   try {
     const { id } = params;
     const response = await readInitialData(id);
-    const data = response ? response : "NOT_FOUND";
-    res.send(data);
+
+    if (!response) {
+      return res.status(404).send("NOT_FOUND");
+    }
+
+    res.send(response);
   } catch (e) {
-    handlerHttp(res, "ERROR_GET_SITE");
+    console.error(e);
+    handlerHttp(res, "ERROR_GET_INITIAL_DATA");
   }
 };
 
@@ -25,7 +31,7 @@ const getInitialsData = async (req: Request, res: Response) => {
     const response = await readInitialsData();
     res.send(response);
   } catch (e) {
-    handlerHttp(res, "ERROR_GET_SITES");
+    handlerHttp(res, "ERROR_GET_INITIALS_DATA");
   }
 };
 
@@ -35,13 +41,13 @@ const updateInitialData = async ({ params, body }: Request, res: Response) => {
     const response = await putInitialData(id, body);
     res.send(response);
   } catch (e) {
-    handlerHttp(res, "ERROR_UPDATE_SITE");
+    handlerHttp(res, "ERROR_UPDATE_INITIAL_DATA");
   }
 };
 
 const postInitialData = async (req: Request, res: Response) => {
   try {
-    // Extraer datos del cuerpo de la solicitud
+    // Extract data from request body
     const {
       siteName,
       visitDate,
@@ -65,6 +71,10 @@ const postInitialData = async (req: Request, res: Response) => {
       const imgIncomeResults = await Promise.all(
         imgIncomeFiles.map(async (file) => {
           const result = await uploadImage(file.tempFilePath);
+
+          //Delete local file after uploading to Cloudinary
+          fs.unlinkSync(file.tempFilePath);
+
           return {
             public_id: result.public_id,
             secure_url: result.secure_url,
@@ -86,6 +96,10 @@ const postInitialData = async (req: Request, res: Response) => {
       const imgTowerResults = await Promise.all(
         imgTowerFiles.map(async (file) => {
           const result = await uploadImage(file.tempFilePath);
+
+          //Delete local file after uploading to Cloudinary
+          fs.unlinkSync(file.tempFilePath);
+
           return {
             public_id: result.public_id,
             secure_url: result.secure_url,
@@ -107,6 +121,10 @@ const postInitialData = async (req: Request, res: Response) => {
       const imgPanorama1Results = await Promise.all(
         imgPanorama1Files.map(async (file) => {
           const result = await uploadImage(file.tempFilePath);
+
+          //Delete local file after uploading to Cloudinary
+          fs.unlinkSync(file.tempFilePath);
+
           return {
             public_id: result.public_id,
             secure_url: result.secure_url,
@@ -128,13 +146,16 @@ const postInitialData = async (req: Request, res: Response) => {
       const imgPanorama2Results = await Promise.all(
         imgPanorama2Files.map(async (file) => {
           const result = await uploadImage(file.tempFilePath);
+
+          //Delete local file after uploading to Cloudinary
+          fs.unlinkSync(file.tempFilePath);
+
           return {
             public_id: result.public_id,
             secure_url: result.secure_url,
           };
         })
       );
-
       // Update the data with the processed files
       data.imgPanorama2 = imgPanorama2Results;
     }
@@ -143,17 +164,43 @@ const postInitialData = async (req: Request, res: Response) => {
     res.send(responseItem);
   } catch (error) {
     console.error(error);
-    res.status(500).send("Internal Server Error");
+    res.status(500).send("INTERNAL_SERVER_ERROR");
   }
 };
 
 const deleteInitialData = async ({ params }: Request, res: Response) => {
   try {
     const { id } = params;
+
+    // Get complete information on the images associated with the data entry
+    const data: any = await readInitialData(id);
+
+    // Verify that data is not null
+    if (!data) {
+      return res.status(404).send("NOT_FOUND");
+    }
+
+    // Delete Cloudinary images
+    const deleteCloudinaryImages = async (images: Array<any> | undefined) => {
+      if (images) {
+        const publicIds = images.map((img) => img?.public_id).filter(Boolean); // Filter null values
+        await Promise.all(publicIds.map(deleteImage));
+      }
+    };
+
+    await deleteCloudinaryImages(data.imgIncome);
+    await deleteCloudinaryImages(data.imgTower);
+    await deleteCloudinaryImages(data.imgPanorama1);
+    await deleteCloudinaryImages(data.imgPanorama2);
+
+    // Repeat the process for other image properties if necessary
+
+    // Finally, delete the data entry
     const response = await dropInitialData(id);
     res.send(response);
   } catch (e) {
-    handlerHttp(res, "ERROR_DELETE  _SITE");
+    console.error(e);
+    handlerHttp(res, "ERROR_DELETE_INITIAL_DATA");
   }
 };
 

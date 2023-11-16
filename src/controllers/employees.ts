@@ -12,10 +12,15 @@ const getEmployee = async ({ params }: Request, res: Response) => {
   try {
     const { id } = params;
     const response = await readEmployee(id);
-    const data = response ? response : "NOT_FOUND";
-    res.send(data);
+
+    if (!response) {
+      return res.status(404).send("NOT_FOUND");
+    }
+
+    res.send(response);
   } catch (e) {
-    handlerHttp(res, "ERROR_GET_SITE");
+    console.error(e);
+    handlerHttp(res, "ERROR_GET_EMPLOYEE");
   }
 };
 
@@ -24,7 +29,7 @@ const getEmployees = async (req: Request, res: Response) => {
     const response = await readEmployees();
     res.send(response);
   } catch (e) {
-    handlerHttp(res, "ERROR_GET_SITES");
+    handlerHttp(res, "ERROR_GET_EMPLOYEES");
   }
 };
 
@@ -34,7 +39,7 @@ const updateEmployee = async ({ params, body }: Request, res: Response) => {
     const response = await putEmployee(id, body);
     res.send(response);
   } catch (e) {
-    handlerHttp(res, "ERROR_UPDATE_SITE");
+    handlerHttp(res, "ERROR_UPDATE_EMPLOYEES");
   }
 };
 
@@ -43,7 +48,7 @@ const postEmployee = async ({ body }: Request, res: Response) => {
     const responseItem = await insertEmployee(body);
     res.send(responseItem);
   } catch (e) {
-    handlerHttp(res, "ERROR_POST_SITE", e);
+    handlerHttp(res, "ERROR_POST_EMPLOYEES", e);
   }
 };
 
@@ -53,7 +58,7 @@ const deleteEmployee = async ({ params }: Request, res: Response) => {
     const response = await dropEmployee(id);
     res.send(response);
   } catch (e) {
-    handlerHttp(res, "ERROR_DELETE  _SITE");
+    handlerHttp(res, "ERROR_DELETE_EMPLOYEES");
   }
 };
 
